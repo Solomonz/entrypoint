@@ -9,6 +9,7 @@ enum layers {
     _SYS, // System Control
 };
 
+// clang-format off
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -25,7 +26,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,            _______,            _______,            _______,            _______,            _______,                                        KC_KP_MINUS,        KC_1,               KC_2,               KC_3,               KC_KP_COMMA,        _______,
                                                                     _______,                    _______,                        _______,            _______,            KC_DOT,                 KC_0
     ),
-
 
     [_SYM] = LAYOUT_split_3x6_3(
         _______,            KC_KP_ASTERISK,     KC_AT,              KC_LCBR,            KC_RCBR,            KC_CIRC,                                        _______,            _______,            _______,            _______,            _______,            _______,
@@ -47,12 +47,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,            _______,            _______,            _______,            _______,            _______,                                        MS_WHLL,            MS_WHLD,            MS_WHLU,            MS_WHLR,            _______,            _______,
                                                                     _______,                    _______,                        _______,            _______,            MS_BTN1,                 MS_BTN2
     ),
+
 };
 
+// clang-format on
 
+/************************/
+/* COMBOS SECTION BEGIN */
+/************************/
 
+const uint16_t PROGMEM escape_combo[] = {KC_J, MT(MOD_RGUI, KC_K), COMBO_END};
+const uint16_t PROGMEM enter_combo[]  = {LT(_NAV, KC_F), MT(MOD_LGUI, KC_D), COMBO_END};
 
-#ifdef OTHER_KEYMAP_C
-#    include OTHER_KEYMAP_C
-#endif // OTHER_KEYMAP_C
+combo_t key_combos[] = {
+    COMBO(escape_combo, KC_ESC),
+    COMBO(enter_combo, KC_ENTER),
+};
 
+/**********************/
+/* COMBOS SECTION END */
+/**********************/
