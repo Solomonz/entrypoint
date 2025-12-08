@@ -1,13 +1,52 @@
 #include QMK_KEYBOARD_H
-#if __has_include("keymap.h")
-#    include "keymap.h"
-#endif
+
+enum layers {
+    _BSE, // Base
+    _NUM, // Num
+    _SYM, // Symbol
+    _NAV, // Navigation
+    _MSE, // Mouse
+    _SYS, // System Control
+};
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [0] = LAYOUT_split_3x6_3(KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_BSPC, KC_LCTL, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT, KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_ESC, KC_LGUI, MO(1), KC_SPC, KC_ENT, MO(2), KC_RALT),
-    [1] = LAYOUT_split_3x6_3(_______, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, _______, _______, KC_EXLM, KC_AT, KC_HASH, KC_DLR, KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______),
-    [2] = LAYOUT_split_3x6_3(QK_BOOT, _______, _______, _______, _______, _______, RM_VALU, RM_HUEU, RM_SATU, RM_NEXT, RM_TOGG, _______, EE_CLR, _______, _______, _______, _______, _______, RM_VALD, RM_HUED, RM_SATD, RM_PREV, CK_TOGG, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______)
+
+    [_BSE] = LAYOUT_split_3x6_3(
+        _______,            KC_Q,               KC_W,               KC_E,               KC_R,               KC_T,                                           KC_Y,               KC_U,               KC_I,               KC_O,               KC_P,               KC_BSLS,
+        _______,            MT(MOD_LCTL, KC_A), MT(MOD_LALT, KC_S), MT(MOD_LGUI, KC_D), LT(_NAV, KC_F),     KC_G,                                           KC_H,               KC_J,               MT(MOD_RGUI, KC_K), MT(MOD_RALT, KC_L), MT(MOD_RCTL, KC_SCLN),KC_QUOT,
+        QK_BOOT,            KC_Z,               KC_X,               KC_C,               KC_V,               KC_B,                                           KC_N,               KC_M,               KC_COMM,            KC_DOT,             KC_SLSH,            _______,
+                                                                    LT(_NUM, KC_BSPC),          KC_SPC,                         LT(_MSE, KC_TAB),   _______,            OSM(MOD_RSFT),          LT(_SYM, KC_DELETE)
+    ),
+
+    [_NUM] = LAYOUT_split_3x6_3(
+        _______,            _______,            _______,            _______,            _______,            _______,                                        KC_KP_PLUS,         KC_7,               KC_8,               KC_9,               KC_HASH,            KC_NO,
+        _______,            _______,            _______,            _______,            _______,            _______,                                        KC_KP_EQUAL,        KC_4,               KC_5,               KC_6,               KC_PERC,            KC_NO,
+        _______,            _______,            _______,            _______,            _______,            _______,                                        KC_KP_MINUS,        KC_1,               KC_2,               KC_3,               KC_KP_COMMA,        _______,
+                                                                    _______,                    _______,                        _______,            _______,            KC_DOT,                 KC_0
+    ),
+
+
+    [_SYM] = LAYOUT_split_3x6_3(
+        _______,            KC_KP_ASTERISK,     KC_AT,              KC_LCBR,            KC_RCBR,            KC_CIRC,                                        _______,            _______,            _______,            _______,            _______,            _______,
+        _______,            KC_EXLM,            KC_GRAVE,           KC_LPRN,            KC_RPRN,            KC_DLR,                                         _______,            _______,            _______,            _______,            _______,            _______,
+        _______,            KC_AMPR,            KC_PIPE,            KC_LBRC,            KC_RBRC,            KC_TRANSPARENT,                                 _______,            _______,            _______,            _______,            _______,            _______,
+                                                                    _______,                    KC_UNDS,                        _______,            _______,            _______,                 _______
+    ),
+
+    [_NAV] = LAYOUT_split_3x6_3(
+        _______,            _______,            _______,            _______,            _______,            _______,                                        LALT(KC_LEFT),      _______,            _______,            LALT(KC_RIGHT),     _______,            _______,
+        _______,            _______,            _______,            _______,            _______,            _______,                                        KC_LEFT,            KC_DOWN,            KC_UP,              KC_RIGHT,           _______,            _______,
+        _______,            _______,            _______,            _______,            _______,            _______,                                        LGUI(KC_LEFT),      _______,            _______,            LGUI(KC_RIGHT),     _______,            _______,
+                                                                    _______,                    _______,                        _______,            _______,            _______,                 _______
+    ),
+
+    [_MSE] = LAYOUT_split_3x6_3(
+        _______,            _______,            _______,            _______,            _______,            _______,                                        _______,            _______,            MS_UP,              _______,            _______,            _______,
+        _______,            _______,            _______,            _______,            _______,            _______,                                        _______,            MS_LEFT,            MS_DOWN,            MS_RGHT,            _______,            _______,
+        _______,            _______,            _______,            _______,            _______,            _______,                                        MS_WHLL,            MS_WHLD,            MS_WHLU,            MS_WHLR,            _______,            _______,
+                                                                    _______,                    _______,                        _______,            _______,            MS_BTN1,                 MS_BTN2
+    ),
 };
 
 
