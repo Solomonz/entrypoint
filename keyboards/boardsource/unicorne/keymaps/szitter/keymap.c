@@ -14,7 +14,7 @@ enum layers {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BSE] = LAYOUT_split_3x6_3(
-        _______,            KC_Q,               KC_W,               KC_E,               KC_R,               KC_T,                                           KC_Y,               KC_U,               KC_I,               KC_O,               KC_P,               KC_BSLS,
+        LCTL(LGUI(KC_Q)),   KC_Q,               KC_W,               KC_E,               KC_R,               KC_T,                                           KC_Y,               KC_U,               KC_I,               KC_O,               KC_P,               KC_BSLS,
         _______,            MT(MOD_LCTL, KC_A), MT(MOD_LALT, KC_S), MT(MOD_LGUI, KC_D), LT(_NAV, KC_F),     KC_G,                                           KC_H,               KC_J,               MT(MOD_RGUI, KC_K), MT(MOD_RALT, KC_L), MT(MOD_RCTL, KC_SCLN),KC_QUOT,
         QK_BOOT,            KC_Z,               KC_X,               KC_C,               KC_V,               KC_B,                                           KC_N,               KC_M,               KC_COMM,            KC_DOT,             KC_SLSH,            _______,
                                                                     LT(_NUM, KC_BSPC),          KC_SPC,                         LT(_MSE, KC_TAB),   _______,            OSM(MOD_RSFT),          LT(_SYM, KC_DELETE)
