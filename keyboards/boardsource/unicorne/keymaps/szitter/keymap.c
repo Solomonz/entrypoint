@@ -15,9 +15,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BSE] = LAYOUT_split_3x6_3(
         C(G(KC_Q)),     KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
-        _______,        LCTL_T(KC_A),   LALT_T(KC_S),   LGUI_T(KC_D),   LT(_NAV, KC_F), KC_G,                                           KC_H,           KC_J,           RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
+        _______,        LCTL_T(KC_A),   LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           RSFT_T(KC_J),   RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
         QK_BOOT,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMM,            KC_DOT,             KC_SLSH,            _______,
-                                                                LT(_NUM, KC_BSPC),      KC_SPC,     LT(_MSE, KC_TAB),       _______,                OSM(MOD_RSFT),          LT(_SYM, KC_DELETE)
+                                                                        LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),LT(_MSE, KC_NO),                               C(KC_BSPC),     KC_NO,          LT(_SYM, KC_DELETE)
     ),
 
     [_NUM] = LAYOUT_split_3x6_3(
@@ -56,9 +56,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* COMBOS SECTION BEGIN */
 /************************/
 
-const uint16_t PROGMEM escape_combo[]    = {KC_J, RGUI_T(KC_K), COMBO_END};
-const uint16_t PROGMEM enter_combo[]     = {LT(_NAV, KC_F), LGUI_T(KC_D), COMBO_END};
-const uint16_t PROGMEM caps_word_combo[] = {LT(_NAV, KC_F), KC_J, COMBO_END};
+const uint16_t PROGMEM escape_combo[]    = {RSFT_T(KC_J), RGUI_T(KC_K), COMBO_END};
+const uint16_t PROGMEM enter_combo[]     = {LSFT_T(KC_F), LGUI_T(KC_D), COMBO_END};
+const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_F), RSFT_T(KC_J), COMBO_END};
 
 combo_t key_combos[] = {
     COMBO(escape_combo, KC_ESC),
