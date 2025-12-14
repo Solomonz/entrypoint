@@ -99,6 +99,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
+        case C(KC_BSPC):
+            if (record->event.pressed && (get_mods() & MOD_MASK_SHIFT)) {
+                tap_code(KC_BSPC);
+                return false;
+            }
+            break;
         default:
             break;
     }
