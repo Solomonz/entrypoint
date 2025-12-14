@@ -69,3 +69,38 @@ combo_t key_combos[] = {
 /**********************/
 /* COMBOS SECTION END */
 /**********************/
+
+
+
+static bool is_holding_k_cmd  = false;
+static bool is_in_command_tab = false;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case RGUI_T(KC_K):
+            if (!record->tap.count) {
+                if (record->event.pressed) {
+                    is_holding_k_cmd = true;
+                } else {
+                    is_holding_k_cmd  = false;
+                    is_in_command_tab = false;
+                }
+            }
+            break;
+        case LT(_MSE, KC_TAB):
+            if (is_holding_k_cmd && record->tap.count && record->event.pressed) {
+                is_in_command_tab = true;
+            }
+            break;
+        case KC_J:
+            if (is_in_command_tab) {
+                tap_code(KC_ESC);
+                is_in_command_tab = false;
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+    return true;
+}
