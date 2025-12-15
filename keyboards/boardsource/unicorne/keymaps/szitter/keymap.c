@@ -87,12 +87,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
-        case LT(_MSE, KC_TAB):
+        case LT(_NUM, KC_TAB):
             if (is_holding_k_cmd && record->tap.count && record->event.pressed) {
                 is_in_command_tab = true;
             }
             break;
-        case KC_J:
+        case RSFT_T(KC_J):
             if (is_in_command_tab) {
                 tap_code(KC_ESC);
                 is_in_command_tab = false;
