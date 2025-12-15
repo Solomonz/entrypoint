@@ -10,7 +10,11 @@ enum layers {
 };
 
 enum tap_dance_codes {
-  LOCK_SCREEN_TD,
+    LOCK_SCREEN_TD,
+};
+
+enum custom_keycodes {
+    BOOT_KEY = SAFE_RANGE,
 };
 
 // clang-format off
@@ -20,7 +24,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_BSE] = LAYOUT_split_3x6_3(
         KC_AUDIO_VOL_UP,TD(LOCK_SCREEN_TD),KC_W,        KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_A), LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           RSFT_T(KC_J),   RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
-        QK_BOOT,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMM,            KC_DOT,             KC_SLSH,            _______,
+        LT(_BSE,BOOT_KEY),KC_Z,         KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMM,            KC_DOT,             KC_SLSH,            _______,
                                                         LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),LT(_MSE, KC_NO),                              KC_BSPC,        KC_NO,          LT(_SYM, KC_DELETE)
     ),
 
@@ -74,7 +78,6 @@ combo_t key_combos[] = {
 /* COMBOS SECTION END */
 /**********************/
 
-
 /***************************/
 /* TAP DANCE SECTION START */
 /***************************/
@@ -86,7 +89,6 @@ tap_dance_action_t tap_dance_actions[] = {
 /*************************/
 /* TAP DANCE SECTION END */
 /*************************/
-
 
 static bool is_holding_k_cmd  = false;
 static bool is_in_command_tab = false;
@@ -103,11 +105,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
+
         case LT(_NUM, KC_TAB):
             if (is_holding_k_cmd && record->tap.count && record->event.pressed) {
                 is_in_command_tab = true;
             }
             break;
+
         case RSFT_T(KC_J):
             if (is_in_command_tab) {
                 tap_code(KC_ESC);
@@ -115,6 +119,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
+
+        case LT(_BSE, BOOT_KEY):
+            if (!record->tap.count) {
+                reset_keyboard();
+            }
+            return false;
+
         default:
             break;
     }
