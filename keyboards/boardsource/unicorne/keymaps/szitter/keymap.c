@@ -6,7 +6,6 @@ enum layers {
     _SYM, // Symbol
     _NAV, // Navigation
     _MSE, // Mouse
-    _SYS, // System Control
 };
 
 enum tap_dance_codes {
@@ -17,6 +16,9 @@ enum tap_dance_codes {
 enum custom_keycodes {
     BOOT_KEY = SAFE_RANGE,
 };
+
+// The key used to Enter the layer
+#define ___E___ _______
 
 // clang-format off
 
@@ -33,28 +35,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,        _______,        _______,        _______,        _______,        _______,                                        KC_PLUS,        KC_7,           KC_8,               KC_9,               KC_HASH,            KC_NO,
         _______,        _______,        _______,        _______,        _______,        _______,                                        KC_EQUAL,       KC_4,           KC_5,               KC_6,               KC_PERC,            KC_NO,
         _______,        _______,        _______,        _______,        _______,        _______,                                        KC_MINUS,       KC_1,           KC_2,               KC_3,               KC_KP_COMMA,        _______,
-                                                        _______,        _______,        _______,                                        _______,        KC_DOT,         KC_0
+                                                        ___E___,        _______,        _______,                                        _______,        KC_DOT,         KC_0
     ),
 
     [_SYM] = LAYOUT_split_3x6_3(
         _______,        KC_KP_ASTERISK, KC_AT,          KC_LCBR,        KC_RCBR,        KC_CIRC,                                        _______,        _______,        _______,            _______,            _______,            _______,
         _______,        KC_EXLM,        KC_GRAVE,       KC_LPRN,        KC_RPRN,        KC_DLR,                                         _______,        _______,        _______,            _______,            _______,            _______,
         _______,        KC_AMPR,        KC_PIPE,        KC_LBRC,        KC_RBRC,        KC_TRANSPARENT,                                 _______,        _______,        _______,            _______,            _______,            _______,
-                                                        KC_UNDS,        _______,        _______,                                        _______,        _______,        _______
+                                                        KC_UNDS,        _______,        _______,                                        _______,        _______,        ___E___
     ),
 
     [_NAV] = LAYOUT_split_3x6_3(
         _______,        _______,        _______,        _______,        _______,        _______,                                        A(KC_LEFT),     G(A(KC_LEFT)),  G(A(KC_RIGHT)),     A(KC_RIGHT),        _______,            _______,
         _______,        _______,        _______,        _______,        _______,        _______,                                        KC_LEFT,        KC_DOWN,        KC_UP,              KC_RIGHT,           _______,            _______,
         _______,        _______,        _______,        _______,        _______,        _______,                                        G(KC_LEFT),     G(C(KC_LEFT)),  G(C(KC_RIGHT)),     G(KC_RIGHT),        _______,            _______,
-                                                        _______,        _______,        _______,                                        _______,        _______,        _______
+                                                        _______,        ___E___,        _______,                                        _______,        _______,        _______
     ),
 
     [_MSE] = LAYOUT_split_3x6_3(
         _______,        _______,        _______,        _______,        _______,        _______,                                        _______,        _______,        MS_UP,              _______,            _______,            _______,
         _______,        _______,        _______,        _______,        _______,        _______,                                        _______,        MS_LEFT,        MS_DOWN,            MS_RGHT,            _______,            _______,
         _______,        _______,        _______,        _______,        _______,        _______,                                        MS_WHLL,        MS_WHLD,        MS_WHLU,            MS_WHLR,            _______,            _______,
-                                                        _______,        _______,        _______,                                        _______,        MS_BTN1,        MS_BTN2
+                                                        _______,        _______,        ___E___,                                        _______,        MS_BTN1,        MS_BTN2
     ),
 
 };
