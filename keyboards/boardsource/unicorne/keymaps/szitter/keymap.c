@@ -234,6 +234,19 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 /* RGB SECTION END */
 /*******************/
 
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+            return true;
+        case LSFT_T(KC_F):
+        case RSFT_T(KC_J):
+            return true;
+        default:
+            // Do not select the hold action when another key is pressed.
+            return false;
+    }
+}
+
 static bool is_holding_k_cmd  = false;
 static bool is_in_command_tab = false;
 
