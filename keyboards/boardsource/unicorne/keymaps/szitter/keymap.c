@@ -6,6 +6,7 @@ enum layers {
     _SYM, // Symbol
     _NAV, // Navigation
     _MSE, // Mouse
+    NUM_LAYERS
 };
 
 enum tap_dance_codes {
@@ -100,39 +101,118 @@ tap_dance_action_t tap_dance_actions[] = {
 
 #ifdef RGB_MATRIX_ENABLE
 
-const uint8_t PROGMEM RGB_LAYER_COLORS[5][3] = {[_BSE] = {0x7d, 0xdc, 0xf8}, [_NUM] = {0xf6, 0x3b, 0x74}, [_SYM] = {0xe2, 0x31, 0xed}, [_NAV] = {0x12, 0xff, 0x12}, [_MSE] = {0xf9, 0x92, 0x1d}};
+// 0..100. 100 means "no limiting" (except whatever QMK brightness is set to).
+#    ifndef RGB_GLOBAL_BUDGET_PERCENT
+#        define RGB_GLOBAL_BUDGET_PERCENT 25
+#    endif
+
+// clang-format off
+const uint8_t PROGMEM RGB_LAYER_COLORS[NUM_LAYERS][3] = {
+    [_BSE] = {0x7d, 0xdc, 0xf8},
+    [_NUM] = {0xf6, 0x3b, 0x74},
+    [_SYM] = {0xe2, 0x31, 0xed},
+    [_NAV] = {0x12, 0xff, 0x12},
+    [_MSE] = {0xf9, 0x92, 0x1d},
+};
+// clang-format on
+
+typedef struct {
+    uint8_t r, g, b;
+    bool    used;
+} led_rgb_t;
+
+static inline uint8_t read_layer_color(uint8_t layer, uint8_t chan) {
+    return pgm_read_byte(&RGB_LAYER_COLORS[layer][chan]);
+}
+
+static inline void set_layer_color(uint8_t layer, uint8_t *r, uint8_t *g, uint8_t *b) {
+    *r = read_layer_color(layer, 0);
+    *g = read_layer_color(layer, 1);
+    *b = read_layer_color(layer, 2);
+}
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint8_t layer = get_highest_layer(layer_state);
-    uint8_t red   = 0;
-    uint8_t green = 0;
-    uint8_t blue  = 0;
 
-#    define SET_COLOR(layer)                \
-        red   = RGB_LAYER_COLORS[layer][0]; \
-        green = RGB_LAYER_COLORS[layer][1]; \
-        blue  = RGB_LAYER_COLORS[layer][2];
+    // Buffer for this frame
+    static led_rgb_t buf[RGB_MATRIX_LED_COUNT];
+
+    // Clear "used" markers
+    for (uint8_t i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
+        buf[i].used = false;
+    }
+
+    // -------- Pass 1: decide intended colors and compute total intensity --------
+    uint32_t sum        = 0;
+    uint8_t  used_count = 0;
 
     for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
         for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
             uint8_t index = g_led_config.matrix_co[row][col];
             if (!(index >= led_min && index <= led_max)) continue;
-            if (index == NO_LED) continue;
-            if (!(g_led_config.flags[index] & (LED_FLAG_KEYLIGHT | LED_FLAG_MODIFIER))) continue;
+
+            uint8_t r = 0, g = 0, b = 0;
 
             uint16_t kc = keymap_key_to_keycode(layer, (keypos_t){col, row});
-            if (kc == KC_NO || kc == KC_TRNS) {
-                rgb_matrix_set_color(index, RGB_OFF);
-                continue;
-                // } else if ((kc & QK_LAYER_TAP) && ((kc & QK_TAP_DANCE) != QK_TAP_DANCE)) {
-            } else if (QK_LAYER_TAP_GET_LAYER(kc)) {
-                SET_COLOR(QK_LAYER_TAP_GET_LAYER(kc));
-            } else {
-                SET_COLOR(layer);
+
+            switch (kc) {
+                case KC_NO:
+                case KC_TRNS:
+                    rgb_matrix_set_color(index, RGB_OFF);
+                    break;
+                case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+                    set_layer_color(QK_LAYER_TAP_GET_LAYER(kc), &r, &g, &b);
+                    break;
+                case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
+                    set_layer_color(QK_LAYER_TAP_TOGGLE_GET_LAYER(kc), &r, &g, &b);
+                    break;
+                case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
+                    set_layer_color(QK_ONE_SHOT_LAYER_GET_LAYER(kc), &r, &g, &b);
+                    break;
+                default:
+                    set_layer_color(layer, &r, &g, &b);
+                    break;
             }
-            rgb_matrix_set_color(index, red >> 1, green >> 1, blue >> 1);
+
+            buf[index].r    = r;
+            buf[index].g    = g;
+            buf[index].b    = b;
+            buf[index].used = true;
+
+            sum += (uint32_t)r + g + b;
+            used_count++;
         }
     }
+
+    if (!(used_count && sum)) {
+        return false;
+    }
+
+    // -------- Compute budget and scale (if needed) --------
+    // Budget is relative to "all used LEDs at 255,255,255"
+    const uint32_t max_sum_for_used = (uint32_t)used_count * 765u; // 255*3
+    uint32_t       budget           = (max_sum_for_used * (uint32_t)RGB_GLOBAL_BUDGET_PERCENT) / 100u;
+
+    // Safety: never let budget go to 0 unless percent is 0
+    if (RGB_GLOBAL_BUDGET_PERCENT > 0 && budget == 0) budget = 1;
+
+    uint32_t scale_q16 = (1u << 16); // 1.0
+    if (RGB_GLOBAL_BUDGET_PERCENT < 100 && sum > budget) {
+        scale_q16 = (budget << 16) / sum;
+    }
+
+    // -------- Pass 2: apply scale and push to LEDs --------
+    for (uint8_t i = led_min; i <= led_max && i < RGB_MATRIX_LED_COUNT; i++) {
+        // Ensure that we only set LEDs that we have already checked should be set
+        if (!buf[i].used) continue;
+
+        uint8_t r = (uint8_t)(((uint32_t)buf[i].r * scale_q16) >> 16);
+        uint8_t g = (uint8_t)(((uint32_t)buf[i].g * scale_q16) >> 16);
+        uint8_t b = (uint8_t)(((uint32_t)buf[i].b * scale_q16) >> 16);
+
+        rgb_matrix_set_color(i, r, g, b);
+    }
+
     return false;
 }
 #endif
