@@ -78,6 +78,20 @@ combo_t key_combos[] = {
     COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
 };
 
+bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
+    uint16_t key;
+    uint8_t  idx = 0;
+    while ((key = pgm_read_word(&combo->keys[idx++])) != COMBO_END) {
+        switch (key) {
+            case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+            case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+            case QK_MOMENTARY ... QK_MOMENTARY_MAX:
+                return true;
+        }
+    }
+    return false;
+}
+
 /**********************/
 /* COMBOS SECTION END */
 /**********************/
