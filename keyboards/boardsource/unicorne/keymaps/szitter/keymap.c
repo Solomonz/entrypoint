@@ -15,7 +15,7 @@ enum tap_dance_codes {
 };
 
 enum custom_keycodes {
-    BOOT_KEY = SAFE_RANGE,
+    BOOT_OR_SCREEN_LOCK = SAFE_RANGE,
 };
 
 // The key used to Enter the layer
@@ -26,9 +26,9 @@ enum custom_keycodes {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BSE] = LAYOUT_split_3x6_3(
-        KC_AUDIO_VOL_UP,TD(LOCK_SCREEN_TD),KC_W,        KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
+        KC_AUDIO_VOL_UP,KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_A), LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           RSFT_T(KC_J),   RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
-        LT(_BSE,BOOT_KEY),KC_Z,         KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           TD(COMMA_PLAY_TD),  KC_DOT,             KC_SLSH,            _______,
+        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Z,KC_X,         KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           TD(COMMA_PLAY_TD),  KC_DOT,             KC_SLSH,            _______,
                                                         LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),LT(_MSE, KC_NO),                              KC_BSPC,        KC_NO,          LT(_SYM, KC_DELETE)
     ),
 
@@ -87,8 +87,7 @@ combo_t key_combos[] = {
 /***************************/
 
 tap_dance_action_t tap_dance_actions[] = {
-    [LOCK_SCREEN_TD] = ACTION_TAP_DANCE_DOUBLE(KC_Q, C(G(KC_Q))),
-    [COMMA_PLAY_TD]  = ACTION_TAP_DANCE_DOUBLE(KC_COMM, KC_MEDIA_PLAY_PAUSE),
+    [COMMA_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_COMM, KC_MEDIA_PLAY_PAUSE),
 };
 
 /*************************/
@@ -251,9 +250,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
 
-        case LT(_BSE, BOOT_KEY):
+        case LT(_BSE, BOOT_OR_SCREEN_LOCK):
             if (!record->tap.count) {
                 reset_keyboard();
+            } else if (record->tap.count == 2) {
+                tap_code16(C(G(KC_Q)));
             }
             return false;
 
