@@ -94,6 +94,53 @@ tap_dance_action_t tap_dance_actions[] = {
 /* TAP DANCE SECTION END */
 /*************************/
 
+/*********************/
+/* RGB SECTION BEGIN */
+/*********************/
+
+#ifdef RGB_MATRIX_ENABLE
+
+const uint8_t PROGMEM RGB_LAYER_COLORS[5][3] = {[_BSE] = {0x7d, 0xdc, 0xf8}, [_NUM] = {0xf6, 0x3b, 0x74}, [_SYM] = {0xe2, 0x31, 0xed}, [_NAV] = {0x12, 0xff, 0x12}, [_MSE] = {0xf9, 0x92, 0x1d}};
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    uint8_t layer = get_highest_layer(layer_state);
+    uint8_t red   = 0;
+    uint8_t green = 0;
+    uint8_t blue  = 0;
+
+#    define SET_COLOR(layer)                \
+        red   = RGB_LAYER_COLORS[layer][0]; \
+        green = RGB_LAYER_COLORS[layer][1]; \
+        blue  = RGB_LAYER_COLORS[layer][2];
+
+    for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
+        for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
+            uint8_t index = g_led_config.matrix_co[row][col];
+            if (!(index >= led_min && index <= led_max)) continue;
+            if (index == NO_LED) continue;
+            if (!(g_led_config.flags[index] & (LED_FLAG_KEYLIGHT | LED_FLAG_MODIFIER))) continue;
+
+            uint16_t kc = keymap_key_to_keycode(layer, (keypos_t){col, row});
+            if (kc == KC_NO || kc == KC_TRNS) {
+                rgb_matrix_set_color(index, RGB_OFF);
+                continue;
+                // } else if ((kc & QK_LAYER_TAP) && ((kc & QK_TAP_DANCE) != QK_TAP_DANCE)) {
+            } else if (QK_LAYER_TAP_GET_LAYER(kc)) {
+                SET_COLOR(QK_LAYER_TAP_GET_LAYER(kc));
+            } else {
+                SET_COLOR(layer);
+            }
+            rgb_matrix_set_color(index, red >> 1, green >> 1, blue >> 1);
+        }
+    }
+    return false;
+}
+#endif
+
+/*******************/
+/* RGB SECTION END */
+/*******************/
+
 static bool is_holding_k_cmd  = false;
 static bool is_in_command_tab = false;
 
