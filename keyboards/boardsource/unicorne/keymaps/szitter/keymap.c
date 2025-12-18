@@ -10,7 +10,6 @@ enum layers {
 };
 
 enum tap_dance_codes {
-    LOCK_SCREEN_TD,
     COMMA_PLAY_TD,
 };
 
