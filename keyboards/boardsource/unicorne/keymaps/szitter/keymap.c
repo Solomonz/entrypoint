@@ -26,7 +26,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BSE] = LAYOUT_split_3x6_3(
         KC_AUDIO_VOL_UP,KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
-        KC_AUDIO_VOL_DOWN,LCTL_T(KC_A), LALT_T(KC_S),   LGUI_T(KC_D),   KC_F,           KC_G,                                           KC_H,           KC_J,           RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
+        KC_AUDIO_VOL_DOWN,LCTL_T(KC_A), LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           KC_J,           RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
         LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Z,KC_X,         KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           TD(COMMA_PLAY_TD),  KC_DOT,             KC_SLSH,            _______,
                                                         LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),LT(_MSE, KC_NO),                              KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
     ),
@@ -67,15 +67,27 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* COMBOS SECTION BEGIN */
 /************************/
 
+enum combos {
+    ESCAPE_COMBO,
+    ENTER_COMBO,
+    CAPS_WORD_COMBO,
+    NUM_COMBOS
+};
+
 const uint16_t PROGMEM escape_combo[]    = {KC_J, RGUI_T(KC_K), COMBO_END};
-const uint16_t PROGMEM enter_combo[]     = {KC_F, LGUI_T(KC_D), COMBO_END};
-const uint16_t PROGMEM caps_word_combo[] = {KC_F, KC_J, COMBO_END};
+const uint16_t PROGMEM enter_combo[]     = {LSFT_T(KC_F), LGUI_T(KC_D), COMBO_END};
+const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_F), KC_J, COMBO_END};
 
 combo_t key_combos[] = {
-    COMBO(escape_combo, KC_ESC),
-    COMBO(enter_combo, KC_ENTER),
-    COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
+    [ESCAPE_COMBO] = COMBO(escape_combo, KC_ESC),
+    [ENTER_COMBO] = COMBO(enter_combo, KC_ENTER),
+    [CAPS_WORD_COMBO] = COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
 };
+
+
+bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
+    return combo_index == ENTER_COMBO;
+}
 
 /**********************/
 /* COMBOS SECTION END */
