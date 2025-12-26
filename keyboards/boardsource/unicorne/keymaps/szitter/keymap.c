@@ -2,6 +2,7 @@
 
 enum layers {
     _BSE, // Base
+    _GRPH, // Graphite
     _NUM, // Num
     _SYM, // Symbol
     _NAV, // Navigation
@@ -11,6 +12,7 @@ enum layers {
 
 enum tap_dance_codes {
     COMMA_PLAY_TD,
+    PERIOD_PLAY_TD,
 };
 
 enum custom_keycodes {
@@ -27,14 +29,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_BSE] = LAYOUT_split_3x6_3(
         KC_AUDIO_VOL_UP,KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_A), LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           KC_J,           RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
-        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Z,KC_X,         KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           TD(COMMA_PLAY_TD),  KC_DOT,             KC_SLSH,            _______,
+        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Z,KC_X,         KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           TD(COMMA_PLAY_TD),  KC_DOT,             KC_SLSH,            DF(_GRPH),
+                                                        LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),LT(_MSE, KC_NO),                              KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
+    ),
+
+    [_GRPH] = LAYOUT_split_3x6_3(
+        KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
+        KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       KC_COMMA,
+        LT(_GRPH,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,        KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           TD(PERIOD_PLAY_TD), KC_MINUS,           KC_SLSH,            DF(_BSE),
                                                         LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),LT(_MSE, KC_NO),                              KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
     ),
 
     [_NUM] = LAYOUT_split_3x6_3(
         _______,        _______,        _______,        _______,        _______,        _______,                                        KC_PLUS,        KC_7,           KC_8,               KC_9,               KC_HASH,            KC_NO,
         _______,        _______,        _______,        _______,        _______,        _______,                                        KC_EQUAL,       KC_4,           KC_5,               KC_6,               KC_PERC,            KC_NO,
-        _______,        _______,        _______,        _______,        _______,        _______,                                        KC_MINUS,       KC_1,           KC_2,               KC_3,               KC_KP_COMMA,        _______,
+        _______,        _______,        _______,        _______,        _______,        _______,                                        KC_MINUS,       KC_1,           KC_2,               KC_3,               KC_KP_COMMA,        KC_NO,
                                                         ___E___,        _______,        _______,                                        _______,        KC_DOT,         KC_0
     ),
 
@@ -48,14 +57,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_NAV] = LAYOUT_split_3x6_3(
         _______,        _______,        _______,        _______,        _______,        _______,                                        A(KC_LEFT),     G(A(KC_LEFT)),  G(A(KC_RIGHT)),     A(KC_RIGHT),        _______,            _______,
         _______,        _______,        _______,        _______,        _______,        _______,                                        KC_LEFT,        KC_DOWN,        KC_UP,              KC_RIGHT,           _______,            _______,
-        _______,        _______,        _______,        _______,        _______,        _______,                                        G(KC_LEFT),     G(C(KC_LEFT)),  G(C(KC_RIGHT)),     G(KC_RIGHT),        _______,            _______,
+        _______,        _______,        _______,        _______,        _______,        _______,                                        G(KC_LEFT),     G(C(KC_LEFT)),  G(C(KC_RIGHT)),     G(KC_RIGHT),        _______,            KC_NO,
                                                         _______,        ___E___,        _______,                                        _______,        _______,        _______
     ),
 
     [_MSE] = LAYOUT_split_3x6_3(
         _______,        _______,        _______,        _______,        _______,        _______,                                        _______,        _______,        MS_UP,              _______,            _______,            _______,
         _______,        _______,        _______,        _______,        _______,        _______,                                        _______,        MS_LEFT,        MS_DOWN,            MS_RGHT,            _______,            _______,
-        _______,        _______,        _______,        _______,        _______,        _______,                                        MS_WHLL,        MS_WHLD,        MS_WHLU,            MS_WHLR,            _______,            _______,
+        _______,        _______,        _______,        _______,        _______,        _______,                                        MS_WHLL,        MS_WHLD,        MS_WHLU,            MS_WHLR,            _______,            KC_NO,
                                                         _______,        _______,        ___E___,                                        _______,        MS_BTN1,        MS_BTN2
     ),
 
@@ -68,25 +77,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /************************/
 
 enum combos {
-    ESCAPE_COMBO,
-    ENTER_COMBO,
-    CAPS_WORD_COMBO,
+    BASE_ESCAPE_COMBO,
+    BASE_ENTER_COMBO,
+    BASE_CAPS_WORD_COMBO,
+    GRAPHITE_ESCAPE_COMBO,
+    GRAPHITE_ENTER_COMBO,
+    GRAPHITE_CAPS_WORD_COMBO,
+
     NUM_COMBOS
 };
 
-const uint16_t PROGMEM escape_combo[]    = {KC_J, RGUI_T(KC_K), COMBO_END};
-const uint16_t PROGMEM enter_combo[]     = {LSFT_T(KC_F), LGUI_T(KC_D), COMBO_END};
-const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_F), KC_J, COMBO_END};
+const uint16_t PROGMEM base_escape_combo[]    = {KC_J, RGUI_T(KC_K), COMBO_END};
+const uint16_t PROGMEM base_enter_combo[]     = {LSFT_T(KC_F), LGUI_T(KC_D), COMBO_END};
+const uint16_t PROGMEM base_caps_word_combo[] = {LSFT_T(KC_F), KC_J, COMBO_END};
+const uint16_t PROGMEM graphite_escape_combo[]    = {KC_H, RGUI_T(KC_A), COMBO_END};
+const uint16_t PROGMEM graphite_enter_combo[]     = {LSFT_T(KC_S), LGUI_T(KC_T), COMBO_END};
+const uint16_t PROGMEM graphite_caps_word_combo[] = {LSFT_T(KC_S), KC_H, COMBO_END};
 
 combo_t key_combos[] = {
-    [ESCAPE_COMBO] = COMBO(escape_combo, KC_ESC),
-    [ENTER_COMBO] = COMBO(enter_combo, KC_ENTER),
-    [CAPS_WORD_COMBO] = COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
+    [BASE_ESCAPE_COMBO] = COMBO(base_escape_combo, KC_ESCAPE),
+    [BASE_ENTER_COMBO] = COMBO(base_enter_combo, KC_ENTER),
+    [BASE_CAPS_WORD_COMBO] = COMBO(base_caps_word_combo, QK_CAPS_WORD_TOGGLE),
+    [GRAPHITE_ESCAPE_COMBO] = COMBO(graphite_escape_combo, KC_ESCAPE),
+    [GRAPHITE_ENTER_COMBO] = COMBO(graphite_enter_combo, KC_ENTER),
+    [GRAPHITE_CAPS_WORD_COMBO] = COMBO(graphite_caps_word_combo, QK_CAPS_WORD_TOGGLE),
 };
 
 
 bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
-    return combo_index == ENTER_COMBO;
+    return combo_index == BASE_ENTER_COMBO || combo_index == GRAPHITE_ENTER_COMBO;
 }
 
 /**********************/
@@ -99,6 +118,7 @@ bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
 
 tap_dance_action_t tap_dance_actions[] = {
     [COMMA_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_COMM, KC_MEDIA_PLAY_PAUSE),
+    [PERIOD_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_MEDIA_PLAY_PAUSE),
 };
 
 /*************************/
@@ -119,6 +139,7 @@ tap_dance_action_t tap_dance_actions[] = {
 // clang-format off
 const uint8_t PROGMEM RGB_LAYER_COLORS[NUM_LAYERS][3] = {
     [_BSE] = {0x7d, 0xdc, 0xf8},
+    [_GRPH] = {0xfa, 0xb6, 0x19},
     [_NUM] = {0xf6, 0x3b, 0x74},
     [_SYM] = {0xe2, 0x31, 0xed},
     [_NAV] = {0x12, 0xff, 0x12},
@@ -178,6 +199,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                     break;
                 case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
                     set_layer_color(QK_ONE_SHOT_LAYER_GET_LAYER(kc), &r, &g, &b);
+                    break;
+                case QK_DEF_LAYER ... QK_DEF_LAYER_MAX:
+                    set_layer_color(QK_DEF_LAYER_GET_LAYER(kc), &r, &g, &b);
                     break;
                 default:
                     set_layer_color(layer, &r, &g, &b);
@@ -241,29 +265,31 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-static bool is_holding_k_cmd  = false;
+static bool is_holding_right_cmd  = false;
 static bool is_in_command_tab = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case RGUI_T(KC_K):
+        case RGUI_T(KC_A):
             if (!record->tap.count) {
                 if (record->event.pressed) {
-                    is_holding_k_cmd = true;
+                    is_holding_right_cmd = true;
                 } else {
-                    is_holding_k_cmd  = false;
+                    is_holding_right_cmd  = false;
                     is_in_command_tab = false;
                 }
             }
             break;
 
         case LT(_NUM, KC_TAB):
-            if (is_holding_k_cmd && record->tap.count && record->event.pressed) {
+            if (is_holding_right_cmd && record->tap.count && record->event.pressed) {
                 is_in_command_tab = true;
             }
             break;
 
         case KC_J:
+        case KC_H:
             if (is_in_command_tab) {
                 tap_code(KC_ESC);
                 is_in_command_tab = false;
