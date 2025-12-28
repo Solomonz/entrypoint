@@ -6,7 +6,6 @@ enum layers {
     _NUM,  // Num
     _SYM,  // Symbol
     _NAV,  // Navigation
-    _MSE,  // Mouse
     NUM_LAYERS
 };
 
@@ -30,14 +29,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_AUDIO_VOL_UP,KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_A), LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           KC_J,           RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
         LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Z,KC_X,         KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           TD(COMMA_PLAY_TD),  KC_DOT,             KC_SLSH,            PDF(_GRPH),
-                                                        LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),LT(_MSE, KC_NO),                              KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
+                                                        LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),KC_NO,                                        KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
     ),
 
     [_GRPH] = LAYOUT_split_3x6_3(
         KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       KC_COMMA,
         LT(_GRPH,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,        KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           TD(PERIOD_PLAY_TD), KC_MINUS,           KC_SLSH,            PDF(_BSE),
-                                                        LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),LT(_MSE, KC_NO),                              KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
+                                                        LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),KC_NO,                                        KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
     ),
 
     [_NUM] = LAYOUT_split_3x6_3(
@@ -55,18 +54,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [_NAV] = LAYOUT_split_3x6_3(
-        _______,        _______,        _______,        _______,        _______,        _______,                                        A(KC_LEFT),     G(A(KC_LEFT)),  G(A(KC_RIGHT)),     A(KC_RIGHT),        _______,            _______,
-        _______,        _______,        _______,        _______,        _______,        _______,                                        KC_LEFT,        KC_DOWN,        KC_UP,              KC_RIGHT,           _______,            _______,
+        _______,        _______,        MS_WHLL,        MS_UP,          MS_WHLR,        MS_WHLU,                                        A(KC_LEFT),     G(A(KC_LEFT)),  G(A(KC_RIGHT)),     A(KC_RIGHT),        _______,            _______,
+        _______,        _______,        MS_LEFT,        MS_DOWN,        MS_RGHT,        MS_WHLD,                                        KC_LEFT,        KC_DOWN,        KC_UP,              KC_RIGHT,           _______,            _______,
         _______,        _______,        _______,        _______,        _______,        _______,                                        G(KC_LEFT),     G(C(KC_LEFT)),  G(C(KC_RIGHT)),     G(KC_RIGHT),        _______,            KC_NO,
-                                                        _______,        ___E___,        _______,                                        _______,        _______,        _______
-    ),
-
-    [_MSE] = LAYOUT_split_3x6_3(
-        _______,        _______,        _______,        _______,        _______,        _______,                                        _______,        _______,        MS_UP,              _______,            _______,            _______,
-        _______,        _______,        _______,        _______,        _______,        _______,                                        _______,        MS_LEFT,        MS_DOWN,            MS_RGHT,            _______,            _______,
-        _______,        _______,        _______,        _______,        _______,        _______,                                        MS_WHLL,        MS_WHLD,        MS_WHLU,            MS_WHLR,            _______,            KC_NO,
-                                                        _______,        _______,        ___E___,                                        _______,        MS_BTN1,        MS_BTN2
-    ),
+                                                        _______,        ___E___,        _______,                                        KC_NO,          MS_BTN1,        MS_BTN2
+    )
 
 };
 
@@ -143,7 +135,6 @@ const uint8_t PROGMEM RGB_LAYER_COLORS[NUM_LAYERS][3] = {
     [_NUM] = {0xf6, 0x3b, 0x74},
     [_SYM] = {0xe2, 0x31, 0xed},
     [_NAV] = {0x12, 0xff, 0x12},
-    [_MSE] = {0xf9, 0x92, 0x1d},
 };
 // clang-format on
 
