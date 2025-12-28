@@ -1,16 +1,15 @@
 #include QMK_KEYBOARD_H
 
 enum layers {
-    _BSE,  // Base
-    _GRPH, // Graphite
-    _NUM,  // Num
-    _SYM,  // Symbol
-    _NAV,  // Navigation
+    _BSE, // Graphite (Base)
+    _QWR, // QWERTY
+    _NUM, // Num
+    _SYM, // Symbol
+    _NAV, // Navigation
     NUM_LAYERS
 };
 
 enum tap_dance_codes {
-    COMMA_PLAY_TD,
     PERIOD_PLAY_TD,
 };
 
@@ -26,17 +25,17 @@ enum custom_keycodes {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BSE] = LAYOUT_split_3x6_3(
-        KC_AUDIO_VOL_UP,KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
-        KC_AUDIO_VOL_DOWN,LCTL_T(KC_A), LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           KC_J,           RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
-        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Z,KC_X,         KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           TD(COMMA_PLAY_TD),  KC_DOT,             KC_SLSH,            PDF(_GRPH),
+        KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
+        KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       KC_COMMA,
+        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           TD(PERIOD_PLAY_TD), KC_MINUS,           KC_SLSH,            TG(_QWR),
                                                         LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),KC_NO,                                        KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
     ),
 
-    [_GRPH] = LAYOUT_split_3x6_3(
-        KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
-        KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       KC_COMMA,
-        LT(_GRPH,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,        KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           TD(PERIOD_PLAY_TD), KC_MINUS,           KC_SLSH,            PDF(_BSE),
-                                                        LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),KC_NO,                                        KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
+    [_QWR] = LAYOUT_split_3x6_3(
+        _______,        KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
+        _______,        LCTL_T(KC_A),   LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           KC_J,           RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
+        _______,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,           KC_DOT,             KC_SLSH,            _______,
+                                                        _______,        _______,        _______,                                        _______,        _______,        _______
     ),
 
     [_NUM] = LAYOUT_split_3x6_3(
@@ -109,7 +108,6 @@ bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
 /***************************/
 
 tap_dance_action_t tap_dance_actions[] = {
-    [COMMA_PLAY_TD]  = ACTION_TAP_DANCE_DOUBLE(KC_COMM, KC_MEDIA_PLAY_PAUSE),
     [PERIOD_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_MEDIA_PLAY_PAUSE),
 };
 
@@ -131,7 +129,7 @@ tap_dance_action_t tap_dance_actions[] = {
 // clang-format off
 const uint8_t PROGMEM RGB_LAYER_COLORS[NUM_LAYERS][3] = {
     [_BSE] = {0x7d, 0xdc, 0xf8},
-    [_GRPH] = {0xfa, 0xb6, 0x19},
+    [_QWR] = {0xff, 0x00, 0x00},
     [_NUM] = {0xf6, 0x3b, 0x74},
     [_SYM] = {0xe2, 0x31, 0xed},
     [_NAV] = {0x12, 0xff, 0x12},
@@ -190,12 +188,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                     break;
                 case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
                     set_layer_color(QK_ONE_SHOT_LAYER_GET_LAYER(kc), &r, &g, &b);
-                    break;
-                case QK_DEF_LAYER ... QK_DEF_LAYER_MAX:
-                    set_layer_color(QK_DEF_LAYER_GET_LAYER(kc), &r, &g, &b);
-                    break;
-                case QK_PERSISTENT_DEF_LAYER ... QK_PERSISTENT_DEF_LAYER_MAX:
-                    set_layer_color(QK_PERSISTENT_DEF_LAYER_GET_LAYER(kc), &r, &g, &b);
                     break;
                 default:
                     set_layer_color(layer, &r, &g, &b);
@@ -292,7 +284,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
 
         case LT(_BSE, BOOT_OR_SCREEN_LOCK):
-        case LT(_GRPH, BOOT_OR_SCREEN_LOCK):
             if (!record->tap.count) {
                 reset_keyboard();
             } else if (record->tap.count == 2) {
