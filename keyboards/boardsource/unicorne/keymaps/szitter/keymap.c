@@ -115,7 +115,7 @@ tap_dance_action_t tap_dance_actions[] = {
 
 // 0..100. 100 means "no limiting" (except whatever QMK brightness is set to).
 #    ifndef RGB_GLOBAL_BUDGET_PERCENT
-#        define RGB_GLOBAL_BUDGET_PERCENT 25
+#        define RGB_GLOBAL_BUDGET_PERCENT 50
 #    endif
 
 // clang-format off
