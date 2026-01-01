@@ -10,7 +10,7 @@ enum layers {
 };
 
 enum tap_dance_codes {
-    PERIOD_PLAY_TD,
+    COMMA_PLAY_TD,
 };
 
 enum custom_keycodes {
@@ -26,8 +26,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BSE] = LAYOUT_split_3x6_3(
         KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
-        KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       KC_COMMA,
-        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           TD(PERIOD_PLAY_TD), KC_MINUS,           KC_SLSH,            TG(_QWR),
+        KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       TD(COMMA_PLAY_TD),
+        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           KC_DOT,             KC_MINUS,           KC_SLSH,            TG(_QWR),
                                                         LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),KC_NO,                                        KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
     ),
 
@@ -100,7 +100,7 @@ bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
 /***************************/
 
 tap_dance_action_t tap_dance_actions[] = {
-    [PERIOD_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_DOT, KC_MEDIA_PLAY_PAUSE),
+    [COMMA_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_COMMA, KC_MEDIA_PLAY_PAUSE),
 };
 
 /*************************/
