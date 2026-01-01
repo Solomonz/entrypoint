@@ -33,7 +33,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_QWR] = LAYOUT_split_3x6_3(
         _______,        KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
-        _______,        LCTL_T(KC_A),   LALT_T(KC_S),   LGUI_T(KC_D),   LSFT_T(KC_F),   KC_G,                                           KC_H,           KC_J,           RGUI_T(KC_K),       RALT_T(KC_L),       RCTL_T(KC_SCLN),    KC_QUOT,
+        _______,        KC_A,           KC_S,           KC_D,           KC_F,           KC_G,                                           KC_H,           KC_J,           KC_K,               KC_L,               KC_SCLN,            KC_QUOT,
         _______,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,           KC_DOT,             KC_SLSH,            _______,
                                                         _______,        _______,        _______,                                        _______,        _______,        _______
     ),
@@ -68,36 +68,27 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /************************/
 
 enum combos {
-    BASE_ESCAPE_COMBO,
-    BASE_ENTER_COMBO,
-    BASE_CAPS_WORD_COMBO,
-    GRAPHITE_ESCAPE_COMBO,
-    GRAPHITE_ENTER_COMBO,
-    GRAPHITE_CAPS_WORD_COMBO,
+    ESCAPE_COMBO,
+    ENTER_COMBO,
+    CAPS_WORD_COMBO,
 
     NUM_COMBOS
 };
 
-const uint16_t PROGMEM base_escape_combo[]        = {KC_J, RGUI_T(KC_K), COMBO_END};
-const uint16_t PROGMEM base_enter_combo[]         = {LSFT_T(KC_F), LGUI_T(KC_D), COMBO_END};
-const uint16_t PROGMEM base_caps_word_combo[]     = {LSFT_T(KC_F), KC_J, COMBO_END};
-const uint16_t PROGMEM graphite_escape_combo[]    = {KC_H, RGUI_T(KC_A), COMBO_END};
-const uint16_t PROGMEM graphite_enter_combo[]     = {LSFT_T(KC_S), LGUI_T(KC_T), COMBO_END};
-const uint16_t PROGMEM graphite_caps_word_combo[] = {LSFT_T(KC_S), KC_H, COMBO_END};
+const uint16_t PROGMEM escape_combo[]    = {KC_H, RGUI_T(KC_A), COMBO_END};
+const uint16_t PROGMEM enter_combo[]     = {LSFT_T(KC_S), LGUI_T(KC_T), COMBO_END};
+const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_S), KC_H, COMBO_END};
 
 // clang-format off
 combo_t key_combos[] = {
-    [BASE_ESCAPE_COMBO] = COMBO(base_escape_combo, KC_ESCAPE),
-    [BASE_ENTER_COMBO] = COMBO(base_enter_combo, KC_ENTER),
-    [BASE_CAPS_WORD_COMBO] = COMBO(base_caps_word_combo, QK_CAPS_WORD_TOGGLE),
-    [GRAPHITE_ESCAPE_COMBO] = COMBO(graphite_escape_combo, KC_ESCAPE),
-    [GRAPHITE_ENTER_COMBO] = COMBO(graphite_enter_combo, KC_ENTER),
-    [GRAPHITE_CAPS_WORD_COMBO] = COMBO(graphite_caps_word_combo, QK_CAPS_WORD_TOGGLE),
+    [ESCAPE_COMBO] = COMBO(escape_combo, KC_ESCAPE),
+    [ENTER_COMBO] = COMBO(enter_combo, KC_ENTER),
+    [CAPS_WORD_COMBO] = COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
 };
 // clang-format on
 
 bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
-    return combo_index == BASE_ENTER_COMBO || combo_index == GRAPHITE_ENTER_COMBO;
+    return combo_index == ENTER_COMBO;
 }
 
 /**********************/
