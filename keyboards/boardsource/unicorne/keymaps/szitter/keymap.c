@@ -308,33 +308,20 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
 }
 
 static bool is_holding_right_cmd = false;
-static bool is_in_command_tab    = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case RGUI_T(KC_K):
         case RGUI_T(KC_A):
             if (!record->tap.count) {
-                if (record->event.pressed) {
-                    is_holding_right_cmd = true;
-                } else {
-                    is_holding_right_cmd = false;
-                    is_in_command_tab    = false;
-                }
-            }
-            break;
-
-        case LT(_NUM, KC_TAB):
-            if (is_holding_right_cmd && record->tap.count && record->event.pressed) {
-                is_in_command_tab = true;
+                is_holding_right_cmd = record->event.pressed;
             }
             break;
 
         case KC_J:
         case KC_H:
-            if (is_in_command_tab) {
+            if (is_holding_right_cmd && record->event.pressed) {
                 tap_code(KC_ESC);
-                is_in_command_tab = false;
                 return false;
             }
             break;
