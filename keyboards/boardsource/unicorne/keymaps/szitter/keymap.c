@@ -27,14 +27,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_BSE] = LAYOUT_split_3x6_3(
         KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       TD(COMMA_PLAY_TD),
-        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           KC_DOT,             KC_MINUS,           KC_SLSH,            TG(_QWR),
+        LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           KC_DOT,             KC_MINUS,           KC_SLSH,            KC_NO,
                                                         LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),KC_NO,                                        KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
     ),
 
     [_QWR] = LAYOUT_split_3x6_3(
         _______,        KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,               KC_O,               KC_P,               KC_BSLS,
         _______,        KC_A,           KC_S,           KC_D,           KC_F,           KC_G,                                           KC_H,           KC_J,           KC_K,               KC_L,               KC_SCLN,            KC_QUOT,
-        _______,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,           KC_DOT,             KC_SLSH,            _______,
+        _______,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,           KC_DOT,             KC_SLSH,            TO(_BSE),
                                                         _______,        _______,        _______,                                        _______,        _______,        _______
     ),
 
@@ -71,6 +71,7 @@ enum combos {
     ESCAPE_COMBO,
     ENTER_COMBO,
     CAPS_WORD_COMBO,
+    QWERTY_COMBO,
 
     NUM_COMBOS
 };
@@ -78,12 +79,14 @@ enum combos {
 const uint16_t PROGMEM escape_combo[]    = {KC_H, RGUI_T(KC_A), COMBO_END};
 const uint16_t PROGMEM enter_combo[]     = {LSFT_T(KC_S), LGUI_T(KC_T), COMBO_END};
 const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_S), KC_H, COMBO_END};
+const uint16_t PROGMEM qwerty_combo[]    = {KC_Q, LALT_T(KC_R), LGUI_T(KC_T), KC_W, COMBO_END};
 
 // clang-format off
 combo_t key_combos[] = {
     [ESCAPE_COMBO] = COMBO(escape_combo, KC_ESCAPE),
     [ENTER_COMBO] = COMBO(enter_combo, KC_ENTER),
     [CAPS_WORD_COMBO] = COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
+    [QWERTY_COMBO] = COMBO(qwerty_combo, TO(_QWR)),
 };
 // clang-format on
 
@@ -174,6 +177,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                     break;
                 case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
                     set_layer_color(QK_LAYER_TAP_GET_LAYER(kc), &r, &g, &b);
+                    break;
+                case QK_TO ... QK_TO_MAX:
+                    set_layer_color(QK_TO_GET_LAYER(kc), &r, &g, &b);
                     break;
                 case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
                     set_layer_color(QK_LAYER_TAP_TOGGLE_GET_LAYER(kc), &r, &g, &b);
