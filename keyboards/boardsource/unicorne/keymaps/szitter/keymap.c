@@ -11,6 +11,7 @@ enum layers {
 
 enum tap_dance_codes {
     COMMA_PLAY_TD,
+    H_ESC_TD,
 };
 
 enum custom_keycodes {
@@ -26,7 +27,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BSE] = LAYOUT_split_3x6_3(
         KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
-        KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       TD(COMMA_PLAY_TD),
+        KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           TD(H_ESC_TD),   RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       TD(COMMA_PLAY_TD),
         LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           KC_DOT,             KC_MINUS,           KC_SLSH,            KC_NO,
                                                         LT(_NUM, KC_TAB),LT(_NAV, KC_SPC),KC_NO,                                        KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_DELETE)
     ),
@@ -68,7 +69,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /************************/
 
 enum combos {
-    ESCAPE_COMBO,
     ENTER_COMBO,
     CAPS_WORD_COMBO,
     QWERTY_COMBO,
@@ -76,14 +76,12 @@ enum combos {
     NUM_COMBOS
 };
 
-const uint16_t PROGMEM escape_combo[]    = {KC_H, RGUI_T(KC_A), COMBO_END};
 const uint16_t PROGMEM enter_combo[]     = {LSFT_T(KC_S), LGUI_T(KC_T), COMBO_END};
-const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_S), KC_H, COMBO_END};
+const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_S), TD(H_ESC_TD), COMBO_END};
 const uint16_t PROGMEM qwerty_combo[]    = {KC_Q, LALT_T(KC_R), LGUI_T(KC_T), KC_W, COMBO_END};
 
 // clang-format off
 combo_t key_combos[] = {
-    [ESCAPE_COMBO] = COMBO(escape_combo, KC_ESCAPE),
     [ENTER_COMBO] = COMBO(enter_combo, KC_ENTER),
     [CAPS_WORD_COMBO] = COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
     [QWERTY_COMBO] = COMBO(qwerty_combo, TO(_QWR)),
@@ -104,6 +102,7 @@ bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
 
 tap_dance_action_t tap_dance_actions[] = {
     [COMMA_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_COMMA, KC_MEDIA_PLAY_PAUSE),
+    [H_ESC_TD]      = ACTION_TAP_DANCE_DOUBLE(KC_H, KC_ESCAPE),
 };
 
 /*************************/
@@ -304,23 +303,8 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-static bool is_holding_right_cmd = false;
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case RGUI_T(KC_A):
-            if (!record->tap.count) {
-                is_holding_right_cmd = record->event.pressed;
-            }
-            break;
-
-        case KC_H:
-            if (is_holding_right_cmd && record->event.pressed) {
-                tap_code(KC_ESC);
-                return false;
-            }
-            break;
-
         case LT(_BSE, BOOT_OR_SCREEN_LOCK):
             if (!record->tap.count) {
                 reset_keyboard();
