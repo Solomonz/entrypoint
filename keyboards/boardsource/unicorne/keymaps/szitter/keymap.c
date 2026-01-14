@@ -308,14 +308,12 @@ static bool is_holding_right_cmd = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case RGUI_T(KC_K):
         case RGUI_T(KC_A):
             if (!record->tap.count) {
                 is_holding_right_cmd = record->event.pressed;
             }
             break;
 
-        case KC_J:
         case KC_H:
             if (is_holding_right_cmd && record->event.pressed) {
                 tap_code(KC_ESC);
