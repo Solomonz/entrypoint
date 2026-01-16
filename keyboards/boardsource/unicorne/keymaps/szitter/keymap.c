@@ -6,6 +6,7 @@ enum layers {
     _NUM, // Num
     _SYM, // Symbol
     _NAV, // Navigation
+
     NUM_LAYERS
 };
 
@@ -54,10 +55,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [_NAV] = LAYOUT_split_3x6_3(
-        _______,        _______,        MS_WHLL,        MS_UP,          MS_WHLR,        MS_WHLU,                                        A(KC_LEFT),     G(A(KC_LEFT)),  G(A(KC_RIGHT)),     A(KC_RIGHT),        _______,            _______,
-        _______,        _______,        MS_LEFT,        MS_DOWN,        MS_RGHT,        MS_WHLD,                                        KC_LEFT,        KC_DOWN,        KC_UP,              KC_RIGHT,           _______,            _______,
-        _______,        KC_LEFT_CTRL,   KC_LEFT_ALT,    KC_LEFT_GUI,    KC_LEFT_SHIFT,  _______,                                        G(KC_LEFT),     G(C(KC_LEFT)),  G(C(KC_RIGHT)),     G(KC_RIGHT),        _______,            KC_NO,
-                                                        _______,        ___E___,        _______,                                        KC_NO,          MS_BTN1,        MS_BTN2
+        _______,        _______,        _______,        _______,        _______,        _______,                                        A(KC_LEFT),     G(A(KC_LEFT)),  G(A(KC_RIGHT)),     A(KC_RIGHT),        _______,            _______,
+        _______,        KC_LEFT_CTRL,   KC_LEFT_ALT,    KC_LEFT_GUI,    KC_LEFT_SHIFT,  _______,                                        KC_LEFT,        KC_DOWN,        KC_UP,              KC_RIGHT,           _______,            _______,
+        _______,        _______,        _______,        _______,        _______,        _______,                                        G(KC_LEFT),     G(C(KC_LEFT)),  G(C(KC_RIGHT)),     G(KC_RIGHT),        _______,            _______,
+                                                        _______,        ___E___,        _______,                                        KC_NO,          KC_NO,          KC_NO
     )
 
 };
