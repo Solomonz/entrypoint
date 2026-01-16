@@ -30,7 +30,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           TD(H_ESC_TD),   RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       TD(COMMA_PLAY_TD),
         LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           KC_DOT,             KC_MINUS,           KC_SLSH,            KC_NO,
-                                                        LT(_NUM, KC_NO),LT(_NAV, KC_SPC),KC_NO,                                         KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_NO)
+                                                        LT(_NUM, KC_ENTER),LT(_NAV, KC_SPC),KC_NO,                                      KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_NO)
     ),
 
     [_QWR] = LAYOUT_split_3x6_3(
@@ -70,28 +70,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /************************/
 
 enum combos {
-    ENTER_COMBO,
     CAPS_WORD_COMBO,
     QWERTY_COMBO,
 
     NUM_COMBOS
 };
 
-const uint16_t PROGMEM enter_combo[]     = {LSFT_T(KC_S), LGUI_T(KC_T), COMBO_END};
 const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_S), TD(H_ESC_TD), COMBO_END};
 const uint16_t PROGMEM qwerty_combo[]    = {KC_Q, LALT_T(KC_R), LGUI_T(KC_T), KC_W, COMBO_END};
 
 // clang-format off
 combo_t key_combos[] = {
-    [ENTER_COMBO] = COMBO(enter_combo, KC_ENTER),
     [CAPS_WORD_COMBO] = COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
     [QWERTY_COMBO] = COMBO(qwerty_combo, TO(_QWR)),
 };
 // clang-format on
-
-bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
-    return combo_index == ENTER_COMBO;
-}
 
 /**********************/
 /* COMBOS SECTION END */
