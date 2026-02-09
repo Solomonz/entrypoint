@@ -169,6 +169,44 @@ tap_dance_action_t tap_dance_actions[] = {
 /* TAP DANCE SECTION END */
 /*************************/
 
+/****************************/
+/* CAPS WORD SECTION BEGIN */
+/****************************/
+
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        // Let our tap dance key pass through without deactivating caps word
+        case TD(SHIFT_TD):
+            return true;
+
+        // Keycodes that continue Caps Word, with shift applied (inverted if shift held)
+        case KC_A ... KC_Z:
+        case KC_MINS:
+            // Implement CAPS_WORD_INVERT_ON_SHIFT behavior:
+            // Use our own tracking flag instead of get_mods() since we don't
+            // register_mods() when caps word is active
+            if (!td_shift_held) {
+                add_weak_mods(MOD_BIT(KC_LSFT));
+            }
+            // If td_shift_held is true, we don't add shift = lowercase
+            return true;
+
+        // Keycodes that continue Caps Word, without shifting
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case KC_UNDS:
+            return true;
+
+        default:
+            return false;  // Deactivate Caps Word
+    }
+}
+
+/**************************/
+/* CAPS WORD SECTION END */
+/**************************/
+
 /******************************/
 /* KEY OVERRIDE SECTION BEGIN */
 /******************************/

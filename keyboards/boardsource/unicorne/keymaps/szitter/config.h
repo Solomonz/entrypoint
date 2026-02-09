@@ -1,5 +1,3 @@
-#define CAPS_WORD_INVERT_ON_SHIFT
-
 #define COMBO_TERM 40
 #define COMBO_MUST_TAP_PER_COMBO
 
