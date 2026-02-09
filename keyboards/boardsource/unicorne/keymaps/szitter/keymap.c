@@ -69,18 +69,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /************************/
 
 enum combos {
-    CAPS_WORD_COMBO,
     QWERTY_COMBO,
 
     NUM_COMBOS
 };
 
-const uint16_t PROGMEM caps_word_combo[] = {LSFT_T(KC_S), KC_H, COMBO_END};
 const uint16_t PROGMEM qwerty_combo[]    = {KC_Q, LALT_T(KC_R), LGUI_T(KC_T), KC_W, COMBO_END};
 
 // clang-format off
 combo_t key_combos[] = {
-    [CAPS_WORD_COMBO] = COMBO(caps_word_combo, QK_CAPS_WORD_TOGGLE),
     [QWERTY_COMBO] = COMBO(qwerty_combo, TO(_QWR)),
 };
 // clang-format on
