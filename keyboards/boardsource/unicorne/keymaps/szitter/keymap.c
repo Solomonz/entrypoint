@@ -12,11 +12,11 @@ enum layers {
 
 enum tap_dance_codes {
     COMMA_PLAY_TD,
-    SHIFT_TD,
 };
 
 enum custom_keycodes {
     BOOT_OR_SCREEN_LOCK = SAFE_RANGE,
+    SHIFT_CW,
 };
 
 // The key used to Enter the layer
@@ -30,7 +30,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       TD(COMMA_PLAY_TD),
         LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           KC_DOT,             KC_MINUS,           KC_SLSH,            KC_NO,
-                                                        LT(_NUM, KC_ENTER),LT(_NAV, KC_SPC),KC_NO,                                      KC_BSPC,        TD(SHIFT_TD),   LT(_SYM, KC_ESCAPE)
+                                                        LT(_NUM, KC_ENTER),LT(_NAV, KC_SPC),KC_NO,                                      KC_BSPC,        SHIFT_CW,       LT(_SYM, KC_ESCAPE)
     ),
 
     [_QWR] = LAYOUT_split_3x6_3(
@@ -91,78 +91,12 @@ combo_t key_combos[] = {
 /* TAP DANCE SECTION START */
 /***************************/
 
-// Custom tap dance state tracking for shift/caps word
-typedef enum {
-    TD_NONE,
-    TD_SINGLE_TAP,
-    TD_SINGLE_HOLD,
-    TD_DOUBLE_TAP,
-} td_state_t;
-
-static td_state_t td_shift_state = TD_NONE;
-static bool td_shift_held = false;  // Track if our tap dance shift is being held
-
-static td_state_t get_td_state(tap_dance_state_t *state) {
-    if (state->count == 1) {
-        // If interrupted or not pressed, it's a single tap
-        // If still pressed, it's a hold
-        if (!state->pressed) {
-            return TD_SINGLE_TAP;
-        } else {
-            return TD_SINGLE_HOLD;
-        }
-    } else if (state->count == 2) {
-        return TD_DOUBLE_TAP;
-    }
-    return TD_NONE;
-}
-
-static void td_shift_finished(tap_dance_state_t *state, void *user_data) {
-    td_shift_state = get_td_state(state);
-    switch (td_shift_state) {
-        case TD_SINGLE_TAP:
-            // Single tap: if caps word is on, turn it off; otherwise toggle caps lock
-            if (is_caps_word_on()) {
-                caps_word_off();
-            } else {
-                tap_code(KC_CAPS_LOCK);
-            }
-            break;
-        case TD_SINGLE_HOLD:
-            // Hold: set our flag, only register mods if caps word is OFF
-            td_shift_held = true;
-            if (!is_caps_word_on()) {
-                register_mods(MOD_BIT(KC_LEFT_SHIFT));
-            }
-            break;
-        case TD_DOUBLE_TAP:
-            // Double tap: turn off caps lock if on, then toggle caps word
-            if (host_keyboard_led_state().caps_lock) {
-                tap_code(KC_CAPS_LOCK);
-            }
-            caps_word_toggle();
-            break;
-        default:
-            break;
-    }
-}
-
-static void td_shift_reset(tap_dance_state_t *state, void *user_data) {
-    switch (td_shift_state) {
-        case TD_SINGLE_HOLD:
-            // Release shift when key is released
-            td_shift_held = false;
-            unregister_mods(MOD_BIT(KC_LEFT_SHIFT));
-            break;
-        default:
-            break;
-    }
-    td_shift_state = TD_NONE;
-}
+static bool     custom_shift_held = false;
+static uint16_t shift_cw_timer = 0;
+static bool     shift_cw_tap_pending = false;
 
 tap_dance_action_t tap_dance_actions[] = {
     [COMMA_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_COMMA, KC_MEDIA_PLAY_PAUSE),
-    [SHIFT_TD] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_shift_finished, td_shift_reset),
 };
 
 /*************************/
@@ -175,8 +109,8 @@ tap_dance_action_t tap_dance_actions[] = {
 
 bool caps_word_press_user(uint16_t keycode) {
     switch (keycode) {
-        // Let our tap dance key pass through without deactivating caps word
-        case TD(SHIFT_TD):
+        // Let our shift key pass through without deactivating caps word
+        case SHIFT_CW:
             return true;
 
         // Keycodes that continue Caps Word, with shift applied (inverted if shift held)
@@ -185,10 +119,10 @@ bool caps_word_press_user(uint16_t keycode) {
             // Implement CAPS_WORD_INVERT_ON_SHIFT behavior:
             // Use our own tracking flag instead of get_mods() since we don't
             // register_mods() when caps word is active
-            if (!td_shift_held) {
+            if (!custom_shift_held) {
                 add_weak_mods(MOD_BIT(KC_LSFT));
             }
-            // If td_shift_held is true, we don't add shift = lowercase
+            // If custom_shift_held is true, we don't add shift = lowercase
             return true;
 
         // Keycodes that continue Caps Word, without shifting
@@ -420,6 +354,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 reset_keyboard();
             } else if (record->tap.count == 2) {
                 tap_code16(C(G(KC_Q)));
+            }
+            return false;
+
+        case SHIFT_CW:
+            if (record->event.pressed) {
+                custom_shift_held = true;
+                if (shift_cw_tap_pending && timer_elapsed(shift_cw_timer) < TAPPING_TERM) {
+                    // Double tap: toggle caps word
+                    caps_word_toggle();
+                    shift_cw_tap_pending = false;
+                } else {
+                    shift_cw_tap_pending = true;
+                    shift_cw_timer = timer_read();
+                    if (!is_caps_word_on()) {
+                        register_mods(MOD_BIT(KC_LEFT_SHIFT));
+                    }
+                }
+            } else {
+                custom_shift_held = false;
+                unregister_mods(MOD_BIT(KC_LEFT_SHIFT));
             }
             return false;
 
