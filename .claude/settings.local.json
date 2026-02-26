@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(brew list:*)",
+      "Bash(qmk config:*)",
+      "Bash(brew install:*)",
+      "Bash(qmk doctor:*)",
+      "Bash(brew info:*)"
+    ]
+  }
+}
