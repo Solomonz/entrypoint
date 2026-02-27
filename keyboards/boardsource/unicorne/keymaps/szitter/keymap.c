@@ -1,4 +1,5 @@
 #include QMK_KEYBOARD_H
+#include "transactions.h"
 
 enum layers {
     _BSE, // Graphite (Base)
@@ -282,6 +283,39 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 /* RGB SECTION END */
 /*******************/
 
+/*******************************/
+/* SPLIT SYNC SECTION BEGIN    */
+/*******************************/
+
+#define SYNC_CAPS_WORD_BIT  0x01
+#define SYNC_SHIFT_HELD_BIT 0x02
+
+static uint8_t synced_state = 0;
+
+static void state_sync_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
+    synced_state = *(const uint8_t*)in_data;
+}
+
+void keyboard_post_init_user(void) {
+    transaction_register_rpc(CAPS_WORD_SYNC, state_sync_handler);
+}
+
+void housekeeping_task_user(void) {
+    if (is_keyboard_master()) {
+        uint8_t current = 0;
+        if (is_caps_word_on()) current |= SYNC_CAPS_WORD_BIT;
+        if (custom_shift_held) current |= SYNC_SHIFT_HELD_BIT;
+        if (current != synced_state) {
+            synced_state = current;
+            transaction_rpc_send(CAPS_WORD_SYNC, sizeof(current), &current);
+        }
+    }
+}
+
+/*****************************/
+/* SPLIT SYNC SECTION END    */
+/*****************************/
+
 /**********************/
 /* OLED SECTION BEGIN */
 /**********************/
@@ -361,6 +395,23 @@ bool oled_task_user(void) {
                 oled_write_ln_P(PSTR("???"), false);
                 break;
         }
+
+        // Blank separator
+        oled_write_ln_P(PSTR("     "), false);
+
+        // Modifier state
+        uint8_t mods = get_mods() | get_oneshot_mods();
+        bool shift_active = (mods & MOD_MASK_SHIFT) || (synced_state & SYNC_SHIFT_HELD_BIT);
+        oled_write_ln_P(shift_active            ? PSTR(" SHFT") : PSTR("     "), false);
+        oled_write_ln_P(mods & MOD_MASK_GUI     ? PSTR("  GUI") : PSTR("     "), false);
+        oled_write_ln_P(mods & MOD_MASK_ALT     ? PSTR("  ALT") : PSTR("     "), false);
+        oled_write_ln_P(mods & MOD_MASK_CTRL    ? PSTR(" CTRL") : PSTR("     "), false);
+
+        // Blank separator
+        oled_write_ln_P(PSTR("     "), false);
+
+        // Caps word state
+        oled_write_ln_P((synced_state & SYNC_CAPS_WORD_BIT) ? PSTR("  C.W") : PSTR("     "), false);
     }
 
     return false;

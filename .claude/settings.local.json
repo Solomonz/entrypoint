@@ -5,7 +5,9 @@
       "Bash(qmk config:*)",
       "Bash(brew install:*)",
       "Bash(qmk doctor:*)",
-      "Bash(brew info:*)"
+      "Bash(brew info:*)",
+      "Bash(qmk compile:*)",
+      "Bash(/opt/homebrew/bin/qmk compile:*)"
     ]
   }
 }
