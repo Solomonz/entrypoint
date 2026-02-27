@@ -156,6 +156,39 @@ const key_override_t *key_overrides[] = {&delete_key_override};
 /* KEY OVERRIDE SECTION END */
 /****************************/
 
+/*******************************/
+/* SPLIT SYNC SECTION BEGIN    */
+/*******************************/
+
+#define SYNC_CAPS_WORD_BIT  0x01
+#define SYNC_SHIFT_HELD_BIT 0x02
+
+static uint8_t synced_state = 0;
+
+static void state_sync_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
+    synced_state = *(const uint8_t*)in_data;
+}
+
+void keyboard_post_init_user(void) {
+    transaction_register_rpc(CAPS_WORD_SYNC, state_sync_handler);
+}
+
+void housekeeping_task_user(void) {
+    if (is_keyboard_master()) {
+        uint8_t current = 0;
+        if (is_caps_word_on()) current |= SYNC_CAPS_WORD_BIT;
+        if (custom_shift_held) current |= SYNC_SHIFT_HELD_BIT;
+        if (current != synced_state) {
+            synced_state = current;
+            transaction_rpc_send(CAPS_WORD_SYNC, sizeof(current), &current);
+        }
+    }
+}
+
+/*****************************/
+/* SPLIT SYNC SECTION END    */
+/*****************************/
+
 /*********************/
 /* RGB SECTION BEGIN */
 /*********************/
@@ -193,6 +226,14 @@ static inline void set_layer_color(uint8_t layer, uint8_t *r, uint8_t *g, uint8_
 }
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    // Caps word: override all LEDs to yellow
+    if (is_caps_word_on() || (synced_state & SYNC_CAPS_WORD_BIT)) {
+        for (uint8_t i = led_min; i <= led_max && i < RGB_MATRIX_LED_COUNT; i++) {
+            rgb_matrix_set_color(i, 0x90, 0x70, 0x00);
+        }
+        return false;
+    }
+
     uint8_t layer = get_highest_layer(layer_state);
 
     // Buffer for this frame
@@ -295,39 +336,6 @@ bool shutdown_user(bool jump_to_bootloader) {
 /* RGB SECTION END */
 /*******************/
 
-/*******************************/
-/* SPLIT SYNC SECTION BEGIN    */
-/*******************************/
-
-#define SYNC_CAPS_WORD_BIT  0x01
-#define SYNC_SHIFT_HELD_BIT 0x02
-
-static uint8_t synced_state = 0;
-
-static void state_sync_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
-    synced_state = *(const uint8_t*)in_data;
-}
-
-void keyboard_post_init_user(void) {
-    transaction_register_rpc(CAPS_WORD_SYNC, state_sync_handler);
-}
-
-void housekeeping_task_user(void) {
-    if (is_keyboard_master()) {
-        uint8_t current = 0;
-        if (is_caps_word_on()) current |= SYNC_CAPS_WORD_BIT;
-        if (custom_shift_held) current |= SYNC_SHIFT_HELD_BIT;
-        if (current != synced_state) {
-            synced_state = current;
-            transaction_rpc_send(CAPS_WORD_SYNC, sizeof(current), &current);
-        }
-    }
-}
-
-/*****************************/
-/* SPLIT SYNC SECTION END    */
-/*****************************/
-
 /**********************/
 /* OLED SECTION BEGIN */
 /**********************/
@@ -418,12 +426,6 @@ bool oled_task_user(void) {
         oled_write_ln_P(mods & MOD_MASK_GUI     ? PSTR("  GUI") : PSTR("     "), false);
         oled_write_ln_P(mods & MOD_MASK_ALT     ? PSTR("  ALT") : PSTR("     "), false);
         oled_write_ln_P(mods & MOD_MASK_CTRL    ? PSTR(" CTRL") : PSTR("     "), false);
-
-        // Blank separator
-        oled_write_ln_P(PSTR("     "), false);
-
-        // Caps word state
-        oled_write_ln_P((synced_state & SYNC_CAPS_WORD_BIT) ? PSTR("  C.W") : PSTR("     "), false);
     }
 
     return false;
