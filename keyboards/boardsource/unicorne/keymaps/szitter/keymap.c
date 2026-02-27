@@ -91,10 +91,6 @@ combo_t key_combos[] = {
 /* TAP DANCE SECTION START */
 /***************************/
 
-static bool     custom_shift_held = false;
-static uint16_t shift_cw_timer = 0;
-static bool     shift_cw_tap_pending = false;
-
 tap_dance_action_t tap_dance_actions[] = {
     [COMMA_PLAY_TD] = ACTION_TAP_DANCE_DOUBLE(KC_COMMA, KC_MEDIA_PLAY_PAUSE),
 };
@@ -102,6 +98,10 @@ tap_dance_action_t tap_dance_actions[] = {
 /*************************/
 /* TAP DANCE SECTION END */
 /*************************/
+
+static bool     custom_shift_held = false;
+static uint16_t shift_cw_timer = 0;
+static bool     shift_cw_tap_pending = false;
 
 /****************************/
 /* CAPS WORD SECTION BEGIN */
@@ -289,21 +289,57 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 #ifdef OLED_ENABLE
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    if (is_keyboard_left()) {
-        return OLED_ROTATION_270; // The enemy's gate is down
-    } else {
-        return rotation;
-    }
-}
-
-static void render_logo(void) {
-    static const char PROGMEM qmk_logo[] = {0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0x00};
-
-    oled_write_P(qmk_logo, false);
+    return OLED_ROTATION_270;
 }
 
 bool oled_task_user(void) {
     if (is_keyboard_left()) {
+        char buf[6];
+
+        // Build date
+        buf[0] = __DATE__[0];
+        buf[1] = __DATE__[1];
+        buf[2] = __DATE__[2];
+        buf[3] = __DATE__[4];
+        buf[4] = __DATE__[5];
+        buf[5] = '\0';
+        oled_write_ln(buf, false);
+
+        // Build time HH:MM
+        buf[0] = __TIME__[0];
+        buf[1] = __TIME__[1];
+        buf[2] = __TIME__[2];
+        buf[3] = __TIME__[3];
+        buf[4] = __TIME__[4];
+        buf[5] = '\0';
+        oled_write_ln(buf, false);
+
+        // Build time :SS
+        buf[0] = ' ';
+        buf[1] = ' ';
+        buf[2] = __TIME__[5];
+        buf[3] = __TIME__[6];
+        buf[4] = __TIME__[7];
+        buf[5] = '\0';
+        oled_write_ln(buf, false);
+
+        // Blank separator
+        oled_write_ln_P(PSTR(""), false);
+
+        // Uptime header
+        oled_write_ln_P(PSTR("  UP"), false);
+
+        // Uptime mm:ss
+        uint32_t secs = timer_read32() / 1000;
+        uint32_t mins = secs / 60;
+        secs %= 60;
+        if (mins > 99) {
+            snprintf(buf, sizeof(buf), "C+:%2lu", (unsigned long)secs);
+        } else {
+            snprintf(buf, sizeof(buf), "%02lu:%02lu", (unsigned long)mins, (unsigned long)secs);
+        }
+        oled_write_ln(buf, false);
+    } else {
         oled_write_P(PSTR("  "), false);
         switch (get_highest_layer(layer_state)) {
             case _BSE:
@@ -322,11 +358,9 @@ bool oled_task_user(void) {
                 oled_write_ln_P(PSTR("NAV"), false);
                 break;
             default:
-                oled_write_ln_P(PSTR("Undefined"), false);
+                oled_write_ln_P(PSTR("???"), false);
                 break;
         }
-    } else {
-        render_logo();
     }
 
     return false;
