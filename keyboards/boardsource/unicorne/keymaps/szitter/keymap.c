@@ -320,16 +320,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
     return false;
 }
-
-bool shutdown_user(bool jump_to_bootloader) {
-    oled_clear();
-    if (jump_to_bootloader) {
-        rgb_matrix_set_color_all(0x30, 0x00, 0x00);
-        rgb_matrix_driver.flush();
-    }
-    oled_render_dirty(true);
-    return false;
-}
 #endif
 
 /*******************/
@@ -481,4 +471,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
     }
     return true;
+}
+
+bool shutdown_user(bool jump_to_bootloader) {
+#ifdef OLED_ENABLE
+    oled_clear();
+    oled_render_dirty(true);
+#endif
+#ifdef RGB_MATRIX_ENABLE
+    if (jump_to_bootloader) {
+        rgb_matrix_set_color_all(0x30, 0x00, 0x00);
+        rgb_matrix_driver.flush();
+    }
+#endif
+    return false;
 }
