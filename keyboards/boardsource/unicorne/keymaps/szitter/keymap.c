@@ -418,6 +418,24 @@ bool oled_task_user(void) {
 
     return false;
 }
+
+void oled_render_boot(bool bootloader) {
+    oled_clear();
+    if (bootloader) {
+        oled_write_P(PSTR("BOOT"), false);
+    } else {
+        oled_write_P(PSTR("Rebooting "), false);
+    }
+
+    oled_render_dirty(true);
+}
+
+bool shutdown_user(bool jump_to_bootloader) {
+    oled_render_boot(jump_to_bootloader);
+
+    return false;
+}
+
 #endif
 
 /********************/
