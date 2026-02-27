@@ -170,7 +170,7 @@ static void state_sync_handler(uint8_t in_buflen, const void* in_data, uint8_t o
 }
 
 void keyboard_post_init_user(void) {
-    transaction_register_rpc(CAPS_WORD_SYNC, state_sync_handler);
+    transaction_register_rpc(USER_STATE_SYNC, state_sync_handler);
 }
 
 void housekeeping_task_user(void) {
@@ -180,7 +180,7 @@ void housekeeping_task_user(void) {
         if (custom_shift_held) current |= SYNC_SHIFT_HELD_BIT;
         if (current != synced_state) {
             synced_state = current;
-            transaction_rpc_send(CAPS_WORD_SYNC, sizeof(current), &current);
+            transaction_rpc_send(USER_STATE_SYNC, sizeof(current), &current);
         }
     }
 }
@@ -368,7 +368,7 @@ bool oled_task_user(void) {
         oled_write_ln(buf, false);
 
         // Blank separator
-        oled_write_ln_P(PSTR(""), false);
+        oled_write_ln_P(PSTR("     "), false);
 
         // Uptime header
         oled_write_ln_P(PSTR("  UP"), false);
