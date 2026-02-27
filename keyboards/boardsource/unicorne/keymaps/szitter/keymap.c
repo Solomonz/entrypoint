@@ -112,6 +112,8 @@ bool caps_word_press_user(uint16_t keycode) {
     switch (keycode) {
         // Let our shift key pass through without deactivating caps word
         case SHIFT_CW:
+        case KC_LSFT:
+        case KC_RSFT:
             return true;
 
         // Keycodes that continue Caps Word, with shift applied (inverted if shift held)
