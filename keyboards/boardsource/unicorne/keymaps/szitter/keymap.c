@@ -370,18 +370,23 @@ bool oled_task_user(void) {
         // Blank separator
         oled_write_ln_P(PSTR("     "), false);
 
-        // Uptime header
-        oled_write_ln_P(PSTR("  UP"), false);
-
-        // Uptime mm:ss
+        // Uptime header (shows century count when past 99 minutes)
         uint32_t secs = timer_read32() / 1000;
         uint32_t mins = secs / 60;
         secs %= 60;
-        if (mins > 99) {
-            snprintf(buf, sizeof(buf), "C+:%2lu", (unsigned long)secs);
+        uint32_t centuries = mins / 100;
+        mins %= 100;
+        if (centuries == 0) {
+            oled_write_ln_P(PSTR("UP   "), false);
+        } else if (centuries < 10) {
+            snprintf(buf, sizeof(buf), "UP %luC", (unsigned long)centuries);
+            oled_write_ln(buf, false);
         } else {
-            snprintf(buf, sizeof(buf), "%02lu:%02lu", (unsigned long)mins, (unsigned long)secs);
+            oled_write_ln_P(PSTR("UP K+"), false);
         }
+
+        // Uptime mm:ss
+        snprintf(buf, sizeof(buf), "%02lu:%02lu", (unsigned long)mins, (unsigned long)secs);
         oled_write_ln(buf, false);
     } else {
         oled_write_P(PSTR("  "), false);
