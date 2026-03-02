@@ -17,7 +17,7 @@ enum tap_dance_codes {
 
 enum custom_keycodes {
     BOOT_OR_SCREEN_LOCK = SAFE_RANGE,
-    SHIFT_CW,
+    COMBO_THUMB,
 };
 
 // The key used to Enter the layer
@@ -31,7 +31,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_AUDIO_VOL_UP,KC_B,           KC_L,           KC_D,           KC_W,           KC_Z,                                           KC_QUOT,        KC_F,           KC_O,               KC_U,               KC_J,               KC_SCLN,
         KC_AUDIO_VOL_DOWN,LCTL_T(KC_N), LALT_T(KC_R),   LGUI_T(KC_T),   LSFT_T(KC_S),   KC_G,                                           KC_Y,           KC_H,           RGUI_T(KC_A),       RALT_T(KC_E),       RCTL_T(KC_I),       TD(COMMA_PLAY_TD),
         LT(_BSE,BOOT_OR_SCREEN_LOCK),KC_Q,KC_X,         KC_M,           KC_C,           KC_V,                                           KC_K,           KC_P,           KC_DOT,             KC_MINUS,           KC_SLSH,            KC_NO,
-                                                        LT(_NUM, KC_ENTER),LT(_NAV, KC_SPC),KC_NO,                                      KC_BSPC,        SHIFT_CW,       LT(_SYM, KC_ESCAPE)
+                                                        LT(_NUM, KC_ENTER),LT(_NAV, KC_SPC),COMBO_THUMB,                                KC_BSPC,        KC_LEFT_SHIFT,  LT(_SYM, KC_ESCAPE)
     ),
 
     [_QWR] = LAYOUT_split_3x6_3(
@@ -72,15 +72,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 enum combos {
     QWERTY_COMBO,
+    CAPS_WORD_COMBO,
 
     NUM_COMBOS
 };
 
 const uint16_t PROGMEM qwerty_combo[]    = {KC_Q, LALT_T(KC_R), LGUI_T(KC_T), KC_W, COMBO_END};
+const uint16_t PROGMEM caps_word_combo[] = {COMBO_THUMB, KC_LEFT_SHIFT, COMBO_END};
 
 // clang-format off
 combo_t key_combos[] = {
-    [QWERTY_COMBO] = COMBO(qwerty_combo, TO(_QWR)),
+    [QWERTY_COMBO]   = COMBO(qwerty_combo, TO(_QWR)),
+    [CAPS_WORD_COMBO] = COMBO(caps_word_combo, CW_TOGG),
 };
 // clang-format on
 
@@ -100,50 +103,6 @@ tap_dance_action_t tap_dance_actions[] = {
 /* TAP DANCE SECTION END */
 /*************************/
 
-static bool     custom_shift_held = false;
-static uint16_t shift_cw_timer = 0;
-static bool     shift_cw_tap_pending = false;
-
-/****************************/
-/* CAPS WORD SECTION BEGIN */
-/****************************/
-
-bool caps_word_press_user(uint16_t keycode) {
-    switch (keycode) {
-        // Let our shift key pass through without deactivating caps word
-        case SHIFT_CW:
-        case KC_LSFT:
-        case KC_RSFT:
-            return true;
-
-        // Keycodes that continue Caps Word, with shift applied (inverted if shift held)
-        case KC_A ... KC_Z:
-        case KC_MINS:
-            // Implement CAPS_WORD_INVERT_ON_SHIFT behavior:
-            // Use our own tracking flag instead of get_mods() since we don't
-            // register_mods() when caps word is active
-            if (!custom_shift_held) {
-                add_weak_mods(MOD_BIT(KC_LSFT));
-            }
-            // If custom_shift_held is true, we don't add shift = lowercase
-            return true;
-
-        // Keycodes that continue Caps Word, without shifting
-        case KC_1 ... KC_0:
-        case KC_BSPC:
-        case KC_DEL:
-        case KC_UNDS:
-            return true;
-
-        default:
-            return false;  // Deactivate Caps Word
-    }
-}
-
-/**************************/
-/* CAPS WORD SECTION END */
-/**************************/
-
 /******************************/
 /* KEY OVERRIDE SECTION BEGIN */
 /******************************/
@@ -161,7 +120,6 @@ const key_override_t *key_overrides[] = {&delete_key_override};
 /*******************************/
 
 #define SYNC_CAPS_WORD_BIT  0x01
-#define SYNC_SHIFT_HELD_BIT 0x02
 
 static uint8_t synced_state = 0;
 
@@ -177,7 +135,6 @@ void housekeeping_task_user(void) {
     if (is_keyboard_master()) {
         uint8_t current = 0;
         if (is_caps_word_on()) current |= SYNC_CAPS_WORD_BIT;
-        if (custom_shift_held) current |= SYNC_SHIFT_HELD_BIT;
         if (current != synced_state) {
             synced_state = current;
             transaction_rpc_send(USER_STATE_SYNC, sizeof(current), &current);
@@ -416,7 +373,7 @@ bool oled_task_user(void) {
 
         // Modifier state
         uint8_t mods = get_mods() | get_oneshot_mods();
-        bool shift_active = (mods & MOD_MASK_SHIFT) || (synced_state & SYNC_SHIFT_HELD_BIT);
+        bool shift_active = (mods & MOD_MASK_SHIFT);
         oled_write_ln_P(shift_active            ? PSTR(" SHFT") : PSTR("     "), false);
         oled_write_ln_P(mods & MOD_MASK_GUI     ? PSTR("  GUI") : PSTR("     "), false);
         oled_write_ln_P(mods & MOD_MASK_ALT     ? PSTR("  ALT") : PSTR("     "), false);
@@ -449,26 +406,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 reset_keyboard();
             } else if (record->tap.count == 2) {
                 tap_code16(C(G(KC_Q)));
-            }
-            return false;
-
-        case SHIFT_CW:
-            if (record->event.pressed) {
-                custom_shift_held = true;
-                if (shift_cw_tap_pending && timer_elapsed(shift_cw_timer) < TAPPING_TERM) {
-                    // Double tap: toggle caps word
-                    caps_word_toggle();
-                    shift_cw_tap_pending = false;
-                } else {
-                    shift_cw_tap_pending = true;
-                    shift_cw_timer = timer_read();
-                    if (!is_caps_word_on()) {
-                        register_mods(MOD_BIT(KC_LEFT_SHIFT));
-                    }
-                }
-            } else {
-                custom_shift_held = false;
-                unregister_mods(MOD_BIT(KC_LEFT_SHIFT));
             }
             return false;
 
